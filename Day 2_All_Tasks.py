@@ -1,27 +1,25 @@
 import pandas as pd
 import requests
+from tenacity import retry, stop_after_attempt, wait_fixed
+
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+def get_api_data(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
 try:
 
     # Task 1:
 
-    posts_response = requests.get(
-        "https://jsonplaceholder.typicode.com/posts"
+    posts = get_api_data(
+    "https://jsonplaceholder.typicode.com/posts"
     )
 
-    if posts_response.status_code != 200:
-        raise Exception(f"Posts API error: {posts_response.status_code}")
 
-    posts = posts_response.json()
-
-    users_response = requests.get(
-        "https://jsonplaceholder.typicode.com/users"
+    users = get_api_data(
+    "https://jsonplaceholder.typicode.com/users"
     )
-
-    if users_response.status_code != 200:
-        raise Exception(f"Users API error: {users_response.status_code}")
-
-    users = users_response.json()
 
 
     # Convert data into DataFrames
